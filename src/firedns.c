@@ -46,7 +46,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #include "log.h"
 #include "dnsbl.h"
 
-RCSID("$Id: firedns.c,v 1.20 2003/06/22 13:19:39 andy Exp $");
+RCSID("$Id: firedns.c,v 1.22 2005/06/03 12:58:12 dg Exp $");
 
 #define FIREDNS_TRIES 3
 #define min(a,b) (a < b ? a : b)
@@ -597,55 +597,38 @@ struct firedns_result *firedns_getresult(const int fd)
    if(c == NULL)
       return &result;
 
-   /* query found-- pull from list: */
-   list_remove(CONNECTIONS, node);
-   node_free(node);
+   /* query found -- we remove in cleanup */
 
    l = recv(c->fd,&h,sizeof(struct s_header),0);
-   close(c->fd);
-   fdns_fdinuse--;
    result.info = (void *) c->info;
    strncpy(result.lookup, c->lookup, 256);
 
    if(l == -1)
    {
       fdns_errno = FDNS_ERR_NETWORK;
-      MyFree(c);
-      return &result;
+      goto cleanup;
    }
 
    if (l < 12)
-   {
-      MyFree(c);
-      return &result;
-   }
+      goto cleanup;
    if (c->id[0] != h.id[0] || c->id[1] != h.id[1])
-   {
-      /* ID mismatch */
-      MyFree(c);
-      return &result;
-   }
+      /* ID mismatch: we keep the connection, as this could be an answer to
+         a previous lookup.. */
+      return NULL;
    if ((h.flags1 & FLAGS1_MASK_QR) == 0)
-   {
-      MyFree(c);
-      return &result;
-   }
+      goto cleanup;
    if ((h.flags1 & FLAGS1_MASK_OPCODE) != 0)
-   {
-      MyFree(c);
-      return &result;
-   }
+      goto cleanup;
    if ((h.flags2 & FLAGS2_MASK_RCODE) != 0)
    {
       fdns_errno = (h.flags2 & FLAGS2_MASK_RCODE);
-      MyFree(c);
-      return &result;
+      goto cleanup;
    }
    h.ancount = ntohs(h.ancount);
-   if (h.ancount < 1)
-   { /* no sense going on if we don't have any answers */
-      MyFree(c);
-      return &result;
+   if (h.ancount < 1) {
+      fdns_errno = FDNS_ERR_NXDOMAIN;
+   /* no sense going on if we don't have any answers */
+      goto cleanup;
    }
    /* skip queries */
    i = 0;
@@ -694,10 +677,7 @@ struct firedns_result *firedns_getresult(const int fd)
          }
       }
       if (l - i < 10)
-      {
-         MyFree(c);
-         return &result;
-      }
+         goto cleanup;
       rr = (struct s_rr_middle *)&h.payload[i];
       src = (char *) rr;
       dst = (char *) &rrbacking;
@@ -721,18 +701,24 @@ struct firedns_result *firedns_getresult(const int fd)
       break;
    }
 
-   MyFree(c);
-
    if (curanswer == h.ancount)
-      return &result;
+      goto cleanup;
    if (i + rr->rdlength > l)
-      return &result;
+      goto cleanup;
    if (rr->rdlength > 1023)
-      return &result;
+      goto cleanup;
 
    fdns_errno = FDNS_ERR_NONE;
    memcpy(result.text,&h.payload[i],rr->rdlength);
    result.text[rr->rdlength] = '\0';
+
+   /* Clean-up */
+cleanup:
+   list_remove(CONNECTIONS, node);
+   node_free(node);
+   close(c->fd);
+   fdns_fdinuse--;
+   MyFree(c);
 
    return &result;
 }

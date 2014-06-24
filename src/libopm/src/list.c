@@ -28,7 +28,7 @@
 #include "malloc.h"
 #include "opm.h"
 
-RCSID("$Id: list.c,v 1.10 2003/06/22 13:19:40 andy Exp $");
+RCSID("$Id: list.c,v 1.11 2003/06/27 18:51:02 strtok Exp $");
 
 OPM_NODE_T *libopm_node_create(void *data)
 {
@@ -102,7 +102,6 @@ OPM_NODE_T *libopm_list_remove(OPM_LIST_T *list, OPM_NODE_T *node)
    {
       node->prev->next = node->next;
       node->next->prev = node->prev;
-      list->elements--;
    }
 
    list->elements--;

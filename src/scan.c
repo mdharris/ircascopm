@@ -387,12 +387,12 @@ void scan_connect(char **user, char *msg)
    {
       if(OPT_DEBUG)
          log_printf("SCAN -> %s is exempt from scanning", mask);
-      irc_send_channels("Scanning exemption in effect for %s (%s!%s@%s)", user[3], user[0], user[1], user[2]);
+      irc_send_channels("Scanning exemption in effect for %s (%s)", user[3], mask);
       return;
    }
    else
    {
-      irc_send_channels("Scanning connection from %s (%s!%s@%s)", user[3], user[0], user[1], user[2]);
+      irc_send_channels("Scanning connection from %s (%s)", user[3], mask);
    }
 
    /* create scan_struct */
@@ -429,11 +429,13 @@ void scan_connect(char **user, char *msg)
                      break;
                   case OPM_ERR_BADADDR:
                      log_printf("OPM -> Bad address %s [%s].",
-                           ss->manual_target->name, ss->ip);
+                           (ss->manual_target ? ss->manual_target->name :
+                           "(unknown)"), ss->ip);
                      break;
                   default:
                      log_printf("OPM -> Unknown error %s [%s].",
-                           ss->manual_target->name, ss->ip);
+                           (ss->manual_target ? ss->manual_target->name :
+                           "(unknown)"), ss->ip);
                      break;
                }
             }

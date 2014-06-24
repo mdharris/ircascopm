@@ -35,7 +35,7 @@
 # include <string.h>
 #endif
 
-RCSID("$Id: config.c,v 1.27 2003/06/20 04:18:44 andy Exp $");
+RCSID("$Id: config.c,v 1.28 2005/07/31 09:31:10 phil Exp $");
 
 static OPM_CONFIG_HASH_T HASH[] = {
    {OPM_CONFIG_FD_LIMIT,       OPM_TYPE_INT},
@@ -86,7 +86,7 @@ OPM_CONFIG_T *libopm_config_create()
       {
          case OPM_TYPE_INT:
             ret->vars[i] = MyMalloc(sizeof(int));
-            *(int *)ret->vars[i] = 0;
+            *(int *) ret->vars[i] = 0;
             break;
 
          case OPM_TYPE_STRING:
@@ -95,7 +95,7 @@ OPM_CONFIG_T *libopm_config_create()
 
          case OPM_TYPE_ADDRESS:
             ret->vars[i] = MyMalloc(sizeof(opm_sockaddr));
-            memset((opm_sockaddr *)ret->vars[i], 0, sizeof(opm_sockaddr));
+            memset((opm_sockaddr *) ret->vars[i], 0, sizeof(opm_sockaddr));
             break; 
 
          case OPM_TYPE_STRINGLIST:

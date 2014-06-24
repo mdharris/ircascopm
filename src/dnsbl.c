@@ -49,7 +49,7 @@ along with this program; if not, write to the Free Software
 #include "irc.h"
 #include "stats.h"
 
-RCSID("$Id: dnsbl.c,v 1.29 2003/06/22 18:03:41 andy Exp $");
+RCSID("$Id: dnsbl.c,v 1.30 2004/01/15 23:12:40 dg Exp $");
 
 /*
  * Work out the DNSBL zones and send the dns query
@@ -248,11 +248,12 @@ void dnsbl_report(struct scan_struct *ss)
    snprintf(buf, sizeof(buf),
             "From: %s <%s>\n"
             "To: %s\n"
-            "Subject: BOPM Report\n\n"
+            "Subject: BOPM Report\n"
+            "X-BOPM-Version: %s\n\n"
             "%s: %s:%d\n\n"
             "%s\n", IRCItem->nick, OpmItem->dnsbl_from, OpmItem->dnsbl_to,
-            scan_gettype(ss->remote->protocol), ss->ip, ss->remote->port,
-	    ss->proof);
+            VERSION, scan_gettype(ss->remote->protocol), ss->ip,
+            ss->remote->port, ss->proof);
 
    if(OPT_DEBUG >= 3)
       log_printf("DNSBL -> Sending following email:\n%s\n", buf);

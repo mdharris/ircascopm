@@ -72,7 +72,7 @@
 #include "malloc.h"
 #include "main.h"
 
-RCSID("$Id: irc.c,v 1.25 2003/06/22 13:19:39 andy Exp $");
+RCSID("$Id: irc.c,v 1.27 2003/11/29 19:56:19 strtok Exp $");
 
 static void irc_init(void);
 static void irc_connect(void);
@@ -439,6 +439,8 @@ static void irc_connect(void)
    irc_send("USER %s %s %s :%s",
             IRCItem->username, IRCItem->username, IRCItem->username,
             IRCItem->realname);
+
+   time(&IRC_LAST);
 }
 
 
@@ -516,6 +518,8 @@ static void irc_read(void)
 
    if((len <= 0) && (errno != EAGAIN))
    {
+      if(OPT_DEBUG >= 2)
+         log_printf("irc_read -> errno=%d len=%d", errno, len);
       irc_reconnect();
       IRC_RAW_LEN = 0;
       return;
@@ -813,7 +817,7 @@ static void m_perform(char **parv, unsigned int parc, char *msg, struct UserInfo
    irc_send("MODE %s %s", IRCItem->nick, IRCItem->mode);
 
    /* Set Away */
-   /* irc_send("AWAY :%s", IRCItem->away); */
+   irc_send("AWAY :%s", IRCItem->away);
 
    /* Perform */
    LIST_FOREACH(node, IRCItem->performs->head)
@@ -964,7 +968,7 @@ static void m_ctcp(char **parv, unsigned int parc, char *msg, struct UserInfo *s
 
    if(strncasecmp(parv[3], "\001VERSION\001", 9) == 0)
    {
-      irc_send("NOTICE %s :\001VERSION Blitzed Open Proxy Monitor %s+IRCASC.1\001",
+      irc_send("NOTICE %s :\001VERSION BOPM+IRCASC %s\001",
             source_p->irc_nick, VERSION);
    }
 }

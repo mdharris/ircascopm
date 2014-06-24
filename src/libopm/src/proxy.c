@@ -40,7 +40,7 @@
 #include "opm_error.h"
 #include "libopm.h"
 
-RCSID("$Id: proxy.c,v 1.16 2003/06/21 04:27:32 andy Exp $");
+RCSID("$Id: proxy.c,v 1.18 2004/01/15 17:30:13 dg Exp $");
 
 static char SENDBUF[SENDBUFLEN + 1];
 
@@ -80,6 +80,9 @@ int libopm_proxy_socks4_write(OPM_T *scanner, OPM_SCAN_T *scan, OPM_CONNECTION_T
          
    scan_ip = (char *) libopm_config(scanner->config, OPM_CONFIG_SCAN_IP);
    scan_port = *(int *) libopm_config(scanner->config, OPM_CONFIG_SCAN_PORT);
+
+   if (inet_aton(scan_ip, &addr) == 0)   
+      ; /* handle error */ 
 
    laddr = htonl(addr.s_addr);
 
@@ -145,6 +148,9 @@ int libopm_proxy_socks5_write(OPM_T *scanner, OPM_SCAN_T *scan, OPM_CONNECTION_T
    
    scan_ip = (char *) libopm_config(scanner->config, OPM_CONFIG_SCAN_IP);
    scan_port = *(int *) libopm_config(scanner->config, OPM_CONFIG_SCAN_PORT);
+
+   if (inet_aton(scan_ip, &addr) == 0)   
+      ; /* handle error */ 
 
    laddr = htonl(addr.s_addr);
 
