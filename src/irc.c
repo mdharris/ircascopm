@@ -814,10 +814,8 @@ static void m_perform(char **parv, unsigned int parc, char *msg, struct UserInfo
    irc_send("OPER %s", IRCItem->oper);
 
    /* Set modes */
+   irc_send("MODE %s +d", IRCItem->nick);
    irc_send("MODE %s %s", IRCItem->nick, IRCItem->mode);
-
-   /* Set Away */
-   irc_send("AWAY :%s", IRCItem->away);
 
    /* Perform */
    LIST_FOREACH(node, IRCItem->performs->head)
