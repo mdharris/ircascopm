@@ -355,8 +355,6 @@ void scan_connect(char **user, char *msg)
    static char mask[MSGLENMAX];
    static char ipmask[MSGLENMAX];
 
-   irc_send_channels("Scanning connection from %s (%s!%s@%s)", user[3], user[0], user[1], user[2]);
-
    /* Check negcache before anything */
    if(OptionsItem->negcache > 0)
    {
@@ -389,7 +387,12 @@ void scan_connect(char **user, char *msg)
    {
       if(OPT_DEBUG)
          log_printf("SCAN -> %s is exempt from scanning", mask);
+      irc_send_channels("Scanning exemption in effect for %s (%s!%s@%s)", user[3], user[0], user[1], user[2]);
       return;
+   }
+   else
+   {
+      irc_send_channels("Scanning connection from %s (%s!%s@%s)", user[3], user[0], user[1], user[2]);
    }
 
    /* create scan_struct */
