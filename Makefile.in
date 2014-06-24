@@ -194,8 +194,8 @@ sysconfdir = @sysconfdir@
 target_alias = @target_alias@
 AUTOMAKE_OPTIONS = foreign
 SUBDIRS = src
-data_DATA = bopm.conf.sample bopm.conf.blitzed
-EXTRA_DIST = ChangeLog contrib INSTALL README bopm.conf.sample bopm.conf.blitzed network-bopm
+data_DATA = example.conf
+EXTRA_DIST = ChangeLog contrib INSTALL README example.conf network-bopm
 all: all-recursive
 
 .SUFFIXES:
@@ -640,8 +640,8 @@ install-data-local:
 		echo "$@ will not overwrite existing $(sysconfdir)/bopm.conf"; \
 	else \
 		$(mkinstalldirs) $(sysconfdir); \
-		echo "$(INSTALL_DATA) bopm.conf.sample $(sysconfdir)/bopm.conf"; \
-		$(INSTALL_DATA) bopm.conf.sample $(sysconfdir)/bopm.conf; \
+		echo "$(INSTALL_DATA) example.conf $(sysconfdir)/bopm.conf"; \
+		$(INSTALL_DATA) example.conf $(sysconfdir)/bopm.conf; \
 	fi
 	$(mkinstalldirs) $(localstatedir)
 
